@@ -17,11 +17,13 @@ const (
 	notFound = "<!DOCTYPE html><html><head><title>Not found</title></head><body><h1>404 not found</h1>Sorry, we could not find the requested page!</body></html>"
 )
 
+// Intercepter enables us to inject tags into HTML pages while they are loaded
 type Intercepter struct {
 	Modifier []func(*html.Node, *url.URL)
 	BaseURL  *url.URL
 }
 
+// DefaultIntercepter creates a new intercepter with a DefaultModifier
 func DefaultIntercepter(base string) (*Intercepter, error) {
 	// Prepare the URL for use as the prefix
 	baseURL, err := normalizeURL(base)
@@ -35,6 +37,7 @@ func DefaultIntercepter(base string) (*Intercepter, error) {
 	}, nil
 }
 
+// DefaultModifier creates a default DOM modifier that prefixes all links with baseURL
 func DefaultModifier(baseURL *url.URL) func(*html.Node, *url.URL) {
 	return func(root *html.Node, pageURL *url.URL) {
 		modifyDOM(root, pageURL, baseURL)
@@ -141,11 +144,10 @@ func normalizeURL(baseURL string) (*url.URL, error) {
 	return u, nil
 }
 
+// ServeHTTP implements the http.Handler interface
 func (i *Intercepter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Create the request to the real server
 	u := r.URL.String()
-	fmt.Printf("URL: %s", u)
-
 	u = strings.TrimLeft(u, "/")
 
 	// Fix the http:/ issue
@@ -154,8 +156,6 @@ func (i *Intercepter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else if strings.HasPrefix(u, "http:") {
 		u = "https://" + strings.TrimLeft(strings.TrimPrefix(u, "https:"), "/")
 	}
-
-	fmt.Printf("URX: %s", u)
 
 	m := r.Method
 	if m == "" {
