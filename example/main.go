@@ -19,8 +19,8 @@ var (
 func main() {
 	fmt.Println("Setting up routes...")
 
-	// Create the intercepter
-	i, err := ic.DefaultIntercepter("/inject/")
+	// Create the interceptor
+	i, err := ic.DefaultInterceptor("/inject/")
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return

@@ -17,21 +17,21 @@ const (
 	notFound = "<!DOCTYPE html><html><head><title>Not found</title></head><body><h1>404 not found</h1>Sorry, we could not find the requested page!</body></html>"
 )
 
-// Intercepter enables us to inject tags into HTML pages while they are loaded
-type Intercepter struct {
+// Interceptor enables us to inject tags into HTML pages while they are loaded
+type Interceptor struct {
 	Modifier []func(*html.Node, *url.URL)
 	BaseURL  *url.URL
 }
 
-// DefaultIntercepter creates a new intercepter with a DefaultModifier
-func DefaultIntercepter(base string) (*Intercepter, error) {
+// DefaultInterceptor creates a new interceptor with a DefaultModifier
+func DefaultInterceptor(base string) (*Interceptor, error) {
 	// Prepare the URL for use as the prefix
 	baseURL, err := normalizeURL(base)
 	if err != nil {
 		return nil, err
 	}
-	// Create the intercepter
-	return &Intercepter{
+	// Create the interceptor
+	return &Interceptor{
 		Modifier: []func(*html.Node, *url.URL){DefaultModifier(baseURL)},
 		BaseURL:  baseURL,
 	}, nil
@@ -145,7 +145,7 @@ func normalizeURL(baseURL string) (*url.URL, error) {
 }
 
 // ServeHTTP implements the http.Handler interface
-func (i *Intercepter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (i *Interceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Create the request to the real server
 	u := r.URL.String()
 	u = strings.TrimLeft(u, "/")
